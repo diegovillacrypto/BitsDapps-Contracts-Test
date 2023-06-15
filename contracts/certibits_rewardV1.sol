@@ -19,7 +19,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
     IERC20Votes bitsToken;
     uint public totalCertiBits;
     uint256 public bonusReward; //Amount of Tokens for reward
-    address recipient;
+    address public recipient;
 
 
     struct signature{
@@ -41,32 +41,35 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
         _disableInitializers();
     }
 
-    function initialize(IERC20Votes _bitsTokenAddress, uint256 _bonusReward, address _recipient) initializer public {
+    function initialize(IERC20Votes _bitsTokenAddress, uint256 _bonusReward) initializer public {
         __AccessControl_init();
         __UUPSUpgradeable_init();
-        grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+
         _setRoleAdmin(BITS_ROLE,DEFAULT_ADMIN_ROLE);
         _setRoleAdmin(UPGRADER_ROLE,DEFAULT_ADMIN_ROLE);
-        _setupRole(UPGRADER_ROLE, msg.sender);
-        _setupRole(BITS_ROLE,msg.sender);
-
-
+        _grantRole(UPGRADER_ROLE, msg.sender);
+        _grantRole(BITS_ROLE, msg.sender);
         bitsToken = _bitsTokenAddress;
         bonusReward = _bonusReward;
-        recipient = _recipient;
+        recipient = msg.sender;
     }
 
 
-    function changeRecipient(address _newAddress) public onlyRole(UPGRADER_ROLE) {
+
+
+
+    function changeRecipient(address _newAddress) public onlyRole(BITS_ROLE) {
         recipient = _newAddress;
     }
 
-    function changeTokenAddress(IERC20Votes _newTokenBits) public onlyRole(UPGRADER_ROLE) {
+    function changeTokenAddress(IERC20Votes _newTokenBits) public onlyRole(BITS_ROLE) {
         bitsToken = _newTokenBits;
     }
 
 
-    function setReward (uint256 _rewardAmount) public onlyRole(UPGRADER_ROLE) {
+    function setReward (uint256 _rewardAmount) public onlyRole(BITS_ROLE) {
         bonusReward = _rewardAmount;
         emit newRewardValue(_rewardAmount);
     }
@@ -75,7 +78,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
     function Certify(string memory _hash, string memory _data) payable public {
         require(!address2hashstate[msg.sender][_hash],"Address already signed these hash");
-        require(msg.value>=1 ether, "min payment for certi is 1 Celo");
+        require(msg.value>= 1 wei, "min payment for certi is 1 Celo"); // 1 WEI TO TEST
         payable(recipient).transfer(msg.value);
         address2hashstate[msg.sender][_hash]=true;
         hash2SignaturesList[_hash].push(signature(msg.sender, _data));

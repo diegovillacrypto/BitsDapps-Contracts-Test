@@ -27,11 +27,11 @@ contract TokenBits is Initializable,AccessControlUpgradeable,ERC20Upgradeable, E
         __ERC20Votes_init();
         __AccessControl_init();
         __UUPSUpgradeable_init();
-        grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _setRoleAdmin(BITS_ROLE,DEFAULT_ADMIN_ROLE);
         _setRoleAdmin(UPGRADER_ROLE,DEFAULT_ADMIN_ROLE);
-        _setupRole(UPGRADER_ROLE, msg.sender);
-        _setupRole(BITS_ROLE,msg.sender);
+        _grantRole(UPGRADER_ROLE, msg.sender);
+        _grantRole(BITS_ROLE,msg.sender);
     }
 
     function mint(address to, uint256 amount) public onlyRole(BITS_ROLE) {
