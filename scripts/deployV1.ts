@@ -12,6 +12,8 @@ async function main2() {
     const Certi = await upgrades.deployProxy(certi, [COIN.address, ethers.utils.parseEther("50")], { initializer: "initialize" }, {kind: "uups"}); //50 Tokens Reward
     const CERTI = await Certi.deployed();
 
+    const Value = "Bro";
+
     console.log(CERTI.address);
 
     
